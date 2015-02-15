@@ -21,11 +21,14 @@ proc default()=
       
     post "/upload":
       var filename = request.formData["file"].fields["filename"]
-      if (existsFile filename):
-        resp("Sorry  but a file with this name already exists!")
+      if filename == "":
+        resp "Sorry but you have to choose a file first."
       else:
-        writeFile(filename, request.formData["file"].body)
-        resp("File \"" & filename & "\" is uploaded.")
+        if (existsFile filename):
+          resp("Sorry  but a file with this name already exists!")
+        else:
+          writeFile(filename, request.formData["file"].body)
+          resp("File \"" & filename & "\" is uploaded.")
       
     get "/@filename":
       var file = readFile(@"filename")
@@ -52,11 +55,14 @@ proc insecure()=
       
     post "/upload":
       var filename = request.formData["file"].fields["filename"]
-      if (existsFile filename):
-        resp("Sorry  but a file with this name already exists!")
+      if filename == "":
+        resp "Sorry but you have to choose a file first."
       else:
-        writeFile(filename, request.formData["file"].body)
-        resp("File \"" & filename & "\" is uploaded.")
+        if (existsFile filename):
+          resp("Sorry  but a file with this name already exists!")
+        else:
+          writeFile(filename, request.formData["file"].body)
+          resp("File \"" & filename & "\" is uploaded.")
       
     get re"\/.*":
       var path = request.pathInfo
