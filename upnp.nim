@@ -15,8 +15,10 @@ var body: string = ""
 body.add("<?xml version=\"1.0\" encoding=\"utf-8\"?> <s:Envelope s:encodingStyle=\"http://schemas.xmlsoap.org/soap/encoding/\" xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"> <s:Body><u:AddPortMapping xmlns:u=\"urn:schemas-upnp-org:service:WANIPConnection:1\"><NewRemoteHost /><NewExternalPort>"& port_extern &"</NewExternalPort><NewProtocol>"& proto &"</NewProtocol><NewInternalPort>"& port_intern &"</NewInternalPort><NewInternalClient>"& client_ip &"</NewInternalClient><NewEnabled>1</NewEnabled><NewPortMappingDescription /><NewLeaseDuration>0</NewLeaseDuration></u:AddPortMapping></s:Body> </s:Envelope>")
 var data = newMultipartData()
 discard post("http://"& router_ip &":49000/upnp/control/WANIPConn1", headers, body)
-openDefaultBrowser "https://diafygi.github.io/webrtc-ips/"
 echo "Ports are open now.\n\n\n"
+echo "Ok as next you will see a webpage with you internet ip und your local ip. Give to your friends the internet ip."
+discard readLine(stdin)
+openDefaultBrowser "https://diafygi.github.io/webrtc-ips/"
 echo "Press 3x Enter to close the port."
 discard readLine(stdin)
 discard readLine(stdin)
