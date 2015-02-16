@@ -28,7 +28,7 @@ proc default()=
           resp("Sorry  but a file with this name already exists!")
         else:
           writeFile(filename, request.formData["file"].body)
-          resp("File \"" & filename & "\" is uploaded.")
+          resp("File \"" & filename & "\" is uploaded.<a href=\"/\">Bring me back")
       
     get "/@filename":
       var file = readFile(@"filename")
@@ -62,7 +62,7 @@ proc insecure()=
           resp("Sorry  but a file with this name already exists!")
         else:
           writeFile(filename, request.formData["file"].body)
-          resp("File \"" & filename & "\" is uploaded.")
+          resp("File \"" & filename & "\" is uploaded.<a href=\"/\">Bring me back")
       
     get re"\/.*":
       var path = request.pathInfo
