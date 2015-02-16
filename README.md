@@ -10,4 +10,8 @@ Because I wanted to learn the language. Thats also why its written so poorly I l
 ### Why doesn't it have feature XYZ?
 Probably because I didn't needed it. But if you want a feature please let me know I may will implement it in the future. If you can code by yourself you also can send me a patch. Or you can just fork it and implement it by yourself :)
 
+###Roadmap
+
+* Redirect to index when upload is finished
+
 For further explanation look at [TheAnonymous.github.io](http://theanonymous.github.io/)
