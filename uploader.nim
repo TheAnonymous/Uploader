@@ -1,8 +1,17 @@
-import os, re, jester, asyncdispatch, htmlgen, asyncnet, net, browsers, parseutils, strutils
+import os, re, jester, asyncdispatch, htmlgen, asyncnet, net, browsers, parseutils, strutils, parseopt2
 echo "\"./upload insecure\" to share also subdirectorys"
 echo "\"./upload 5000\" to serve on port 5000"
 echo "\"./upload insecure 5000\" to share also subdirectorys and serve on port 5000"
 var port = 8080
+var insecure_world = false
+
+proc parseCommArgs()=
+  for kind, key, val in getopt():
+    case key
+    of "insecure", "-i": insecure_world = true
+    if parseInt(key, port) == 0:
+      discard parseInt(key, port)
+
 proc default()=
   settings:
       port = Port(port)
@@ -75,17 +84,14 @@ proc insecure()=
     
   runForever()
   
-
-if paramCount() >= 1:
-  if parseInt(paramStr(1), port) == 0:
-    if paramCount() == 2:
-      discard parseInt(paramStr(2), port)
+parseCommArgs()
 openDefaultBrowser("http://localhost:" & intToStr(port))
 
-if paramCount() >= 1:
-  if paramStr(1)  == "insecure":
-    insecure()
-  else:
-    default()
+if insecure_world:
+  insecure()
 else:
   default()
+  
+  
+  
+
