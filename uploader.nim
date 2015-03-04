@@ -41,8 +41,7 @@ proc default()=
       
     get "/@filename":
       var file = readFile(@"filename")
-      await response.send(file)
-      response.client.close()
+      resp(file, "application")
   runForever()
   
 proc insecure()=
@@ -79,8 +78,7 @@ proc insecure()=
         path = path.replace(re"%5C", "\\")
       path = "." & path
       var file = readFile(path)
-      await response.send(file)
-      response.client.close()
+      resp(file, "application")
     
   runForever()
   
