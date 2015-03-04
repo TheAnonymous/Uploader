@@ -5,6 +5,21 @@ echo "\"./upload insecure 5000\" to share also subdirectorys and serve on port 5
 var port = 8080
 var insecure_world = false
 
+
+var html_temp = ""
+html_temp.add "<link href=\"//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css\" rel=\"stylesheet\">"
+html_temp.add "<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css\">"
+html_temp.add "<script src=\"//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js\"></script>"
+html_temp.add "<div class=\"container\"><h1 class=\"text-center\"><strong><a href=\"http://theanonymous.github.io\" target=\"_blank\">Uploader</a></strong><small><p class=\"glyphicon glyphicon-sort\"></p></small></h1><div class=\"row\"><div class=\"col-md-12\">"
+html_temp.add "<form action=\"upload\" method=\"post\"enctype=\"multipart/form-data\" class=\"form-inline\">"
+html_temp.add "<div class=\"form-group\">"
+html_temp.add "<input type=\"file\" name=\"file\"value=\"file\">"
+html_temp.add "</div>"
+html_temp.add "<div class=\"form-group\">"
+html_temp.add "<button type=\"submit\" value=\"Submit\" name=\"submit\" class=\"btn btn-default\"><span class=\"glyphicon  glyphicon-cloud-upload\" aria-hidden=\"true\"></span> Upload</button>"
+html_temp.add "</div>"
+html_temp.add "</form></div></div>"
+
 proc parseCommArgs()=
   for kind, key, val in getopt():
     case key
@@ -18,14 +33,12 @@ proc default()=
   routes:
     
     get "/":
-      var html = ""
-      html.add "<form action=\"upload\" method=\"post\"enctype=\"multipart/form-data\">"
-      html.add "<input type=\"file\" name=\"file\"value=\"file\">"
-      html.add "<input type=\"submit\" value=\"Submit\" name=\"submit\">"
-      html.add "</form>"
+      var html = html_temp
       html.add "<h3>Files</h3>"
+      html.add "<table class=\"table table-hover\">"
       for file in walkFiles("*.*"):
-          html.add "<li><a href=\"" &file & "\">" & file & "</li>"
+          html.add "<tr><td><a href=\"" &file & "\">" & file & "</td></tr>"
+      html.add "</table></div>"
       resp(html)
       
     post "/upload":
@@ -50,15 +63,12 @@ proc insecure()=
   routes:
   
     get "/":
-      var html = ""
-      html.add "<form action=\"upload\" method=\"post\"enctype=\"multipart/form-data\">"
-      html.add "<input type=\"file\" name=\"file\"value=\"file\">"
-      html.add "<input type=\"submit\" value=\"Submit\" name=\"submit\">"
-      html.add "</form>"
+      var html = html_temp
       html.add "<h3>Folder and files</h3>"
+      html.add "<table class=\"table table-hover\">"
       for folder in walkDirRec("./"):
-        html.add "<li><a href=\"" &folder & "\">" & folder & "</li>"
-      html.add "<h3>Files</h3>"
+        html.add "<tr><td><a href=\"" &folder & "\">" & folder & "</td></tr>"
+      html.add "</table></div>"
       resp(html)
       
     post "/upload":
