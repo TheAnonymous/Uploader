@@ -20,6 +20,24 @@ html_temp.add "<button type=\"submit\" value=\"Submit\" name=\"submit\" class=\"
 html_temp.add "</div>"
 html_temp.add "</form></div></div>"
 
+proc stringToUri(input: string): string =
+    var result = input.replace(re"\(", "%28")
+    result = result.replace(re"%", "%25")
+    result = result.replace(re"\s", "%20")
+    result = result.replace(re"\)", "%29")
+    result = result.replace(re"\,", "%2C")
+    result = result.replace(re"&", "%26")
+    result
+
+proc uriToString(input: string): string =
+    var result = input.replace("%28", "(")
+    result = result.replace("%20", " ")
+    result = result.replace("%29", ")")
+    result = result.replace("%2C", ",")
+    result = result.replace("%26", "&")
+    result = result.replace("%25", "%")
+    result
+
 proc parseCommArgs()=
   for kind, key, val in getopt():
     case key
@@ -37,7 +55,7 @@ proc default()=
       html.add "<h3>Files</h3>"
       html.add "<table class=\"table table-hover\">"
       for file in walkFiles("*.*"):
-          html.add "<tr><td><a href=\"" &file & "\">" & file & "</td></tr>"
+          html.add "<tr><td><a href=\"" & stringToUri(file) & "\">" & file & "</td></tr>"
       html.add "</table></div>"
       resp(html)
       
@@ -53,7 +71,9 @@ proc default()=
           resp("File \"" & filename & "\" is uploaded.<a href=\"/\">Bring me back")
       
     get "/@filename":
-      var file = readFile(@"filename")
+      var filename = @"filename"
+      filename = uriToString(filename)
+      var file = readFile(filename)
       resp(file, "application")
   runForever()
   
@@ -67,7 +87,7 @@ proc insecure()=
       html.add "<h3>Folder and files</h3>"
       html.add "<table class=\"table table-hover\">"
       for folder in walkDirRec("./"):
-        html.add "<tr><td><a href=\"" &folder & "\">" & folder & "</td></tr>"
+        html.add "<tr><td><a href=\"" & stringToUri(folder) & "\">" & folder & "</td></tr>"
       html.add "</table></div>"
       resp(html)
       
@@ -87,6 +107,7 @@ proc insecure()=
       if hostOS == "windows":
         path = path.replace(re"%5C", "\\")
       path = "." & path
+      path = uriToString(path)
       var file = readFile(path)
       resp(file, "application")
     
