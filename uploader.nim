@@ -1,4 +1,4 @@
-import os, re, jester, asyncdispatch, htmlgen, asyncnet, net, browsers, parseutils, strutils, parseopt2
+import os, re,asyncfile, jester, asyncdispatch, htmlgen, asyncnet, net, browsers, parseutils, strutils, parseopt2, cgi
 echo "\"./upload insecure\" to share also subdirectorys"
 echo "\"./upload 5000\" to serve on port 5000"
 echo "\"./upload insecure 5000\" to share also subdirectorys and serve on port 5000"
@@ -20,24 +20,6 @@ html_temp.add "<button type=\"submit\" value=\"Submit\" name=\"submit\" class=\"
 html_temp.add "</div>"
 html_temp.add "</form></div></div>"
 
-proc stringToUri(input: string): string =
-    var result = input.replace(re"\(", "%28")
-    result = result.replace(re"%", "%25")
-    result = result.replace(re"\s", "%20")
-    result = result.replace(re"\)", "%29")
-    result = result.replace(re"\,", "%2C")
-    result = result.replace(re"&", "%26")
-    result
-
-proc uriToString(input: string): string =
-    var result = input.replace("%28", "(")
-    result = result.replace("%20", " ")
-    result = result.replace("%29", ")")
-    result = result.replace("%2C", ",")
-    result = result.replace("%26", "&")
-    result = result.replace("%25", "%")
-    result
-
 proc parseCommArgs()=
   for kind, key, val in getopt():
     case key
@@ -45,20 +27,20 @@ proc parseCommArgs()=
     if parseInt(key, port) == 0:
       discard parseInt(key, port)
 
-proc default()=
+proc default() =
   settings:
       port = Port(port)
   routes:
-    
+
     get "/":
       var html = html_temp
       html.add "<h3>Files</h3>"
       html.add "<table class=\"table table-hover\">"
       for file in walkFiles("*.*"):
-          html.add "<tr><td><a href=\"" & stringToUri(file) & "\">" & file & "</td></tr>"
+          html.add "<tr><td><a href=\"" & encodeUrl(file) & "\">" & file & "</td></tr>"
       html.add "</table></div>"
       resp(html)
-      
+
     post "/upload":
       var filename = request.formData["file"].fields["filename"]
       if filename == "":
@@ -69,28 +51,36 @@ proc default()=
         else:
           writeFile(filename, request.formData["file"].body)
           resp("File \"" & filename & "\" is uploaded.<a href=\"/\">Bring me back")
-      
+
     get "/@filename":
+      await response.sendHeaders(Http200, {"Content-Type": "application"}.newStringTable())
       var filename = @"filename"
-      filename = uriToString(filename)
-      var file = readFile(filename)
-      resp(file, "application")
+      filename = decodeUrl(filename)
+      var file = openAsync(filename, fmRead)
+      var data = await file.read(4000)
+      while data.len != 0:
+        await response.client.send(data)
+        data = await file.read(1)
+      file.close()
+      response.client.close()
   runForever()
-  
+
 proc insecure()=
   settings:
     port = Port(port)
+    staticDir = "./"
+
   routes:
-  
+
     get "/":
       var html = html_temp
       html.add "<h3>Folder and files</h3>"
       html.add "<table class=\"table table-hover\">"
       for folder in walkDirRec("./"):
-        html.add "<tr><td><a href=\"" & stringToUri(folder) & "\">" & folder & "</td></tr>"
+        html.add "<tr><td><a href=\"" & encodeUrl(folder) & "\">" & folder & "</td></tr>"
       html.add "</table></div>"
       resp(html)
-      
+
     post "/upload":
       var filename = request.formData["file"].fields["filename"]
       if filename == "":
@@ -101,18 +91,10 @@ proc insecure()=
         else:
           writeFile(filename, request.formData["file"].body)
           resp("File \"" & filename & "\" is uploaded.<a href=\"/\">Bring me back")
-      
-    get re"\/.*":
-      var path = request.pathInfo
-      if hostOS == "windows":
-        path = path.replace(re"%5C", "\\")
-      path = "." & path
-      path = uriToString(path)
-      var file = readFile(path)
-      resp(file, "application")
-    
+
+
   runForever()
-  
+
 parseCommArgs()
 openDefaultBrowser("http://localhost:" & intToStr(port))
 
@@ -120,7 +102,3 @@ if insecure_world:
   insecure()
 else:
   default()
-  
-  
-  
-
