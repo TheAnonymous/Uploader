@@ -10,15 +10,17 @@ var html_temp = ""
 html_temp.add "<link href=\"//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css\" rel=\"stylesheet\">"
 html_temp.add "<link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css\">"
 html_temp.add "<script src=\"//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js\"></script>"
-html_temp.add "<div class=\"container\"><h1 class=\"text-center\"><strong><a href=\"http://theanonymous.github.io\" target=\"_blank\">Uploader</a></strong><small><p class=\"glyphicon glyphicon-sort\"></p></small></h1><div class=\"row\"><div class=\"col-md-12\">"
-html_temp.add "<form action=\"upload\" method=\"post\"enctype=\"multipart/form-data\" class=\"form-inline\">"
+html_temp.add "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.1/angular.js\"></script>"
+html_temp.add "<script>var uploaderApp = angular.module('uploader', []);</script>"
+html_temp.add "<div ng-app=\"uploader\" class=\"container\"><h1 class=\"text-center\"><strong><a href=\"http://theanonymous.github.io\" target=\"_blank\">Uploader</a></strong><small><p class=\"glyphicon glyphicon-sort\"></p></small></h1><div class=\"row\"><div class=\"col-md-12\">"
+html_temp.add "<div class=\"col-md-6\"><form action=\"upload\" method=\"post\"enctype=\"multipart/form-data\" class=\"form-inline\">"
 html_temp.add "<div class=\"form-group\">"
 html_temp.add "<input type=\"file\" name=\"file\"value=\"file\">"
 html_temp.add "</div>"
 html_temp.add "<div class=\"form-group\">"
 html_temp.add "<button type=\"submit\" value=\"Submit\" name=\"submit\" class=\"btn btn-default\"><span class=\"glyphicon  glyphicon-cloud-upload\" aria-hidden=\"true\"></span> Upload</button>"
 html_temp.add "</div>"
-html_temp.add "</form></div></div>"
+html_temp.add "</form></div><div class=\"col-md-6\"><input type=\"text\" placeholder=\"Filter files...\" class=\"form-control\" ng-model=\"query\"></div></div></div>"
 
 proc parseCommArgs()=
   for kind, key, val in getopt():
@@ -37,7 +39,7 @@ proc default() =
       html.add "<h3>Files</h3>"
       html.add "<table class=\"table table-hover\">"
       for file in walkFiles("*.*"):
-          html.add "<tr><td><a href=\"" & encodeUrl(file) & "\">" & file & "</td></tr>"
+          html.add "<tr ng-show=\"'" & file & "'.toLowerCase().search(query.toLowerCase()) !== -1\"><td><a href=\"" & encodeUrl(file) & "\">" & file & "</td></tr>"
       html.add "</table></div>"
       resp(html)
 
