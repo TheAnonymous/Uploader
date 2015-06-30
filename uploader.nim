@@ -51,8 +51,9 @@ proc default() =
         if (existsFile filename):
           resp("Sorry  but a file with this name already exists!")
         else:
-          writeFile(filename, request.formData["file"].body)
-          resp("File \"" & filename & "\" is uploaded.<a href=\"/\">Bring me back")
+          var file = openAsync(filename, fmReadWrite)
+          await file.write(request.formData["file"].body)
+          resp("File \"" & filename & "\" is uploaded.</br><a href=\"/\">Bring me back")
 
     get "/@filename":
       await response.sendHeaders(Http200, {"Content-Type": "application"}.newStringTable())
@@ -62,7 +63,7 @@ proc default() =
       var data = await file.read(4000)
       while data.len != 0:
         await response.client.send(data)
-        data = await file.read(1)
+        data = await file.read(4000)
       file.close()
       response.client.close()
   runForever()
@@ -91,8 +92,9 @@ proc insecure()=
         if (existsFile filename):
           resp("Sorry  but a file with this name already exists!")
         else:
-          writeFile(filename, request.formData["file"].body)
-          resp("File \"" & filename & "\" is uploaded.<a href=\"/\">Bring me back")
+          var file = openAsync(filename, fmReadWrite)
+          await file.write(request.formData["file"].body)
+          resp("File \"" & filename & "\" is uploaded.</br><a href=\"/\">Bring me back")
 
 
   runForever()
